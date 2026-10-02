@@ -6,13 +6,16 @@ import type { StoreFeature } from './assets/locations';
 interface MarkerProps {
   feature: StoreFeature
   map: mapboxgl.Map
+  selectedStore: StoreFeature | null
+  setSelectedStore: Function
 }
 
-const Marker = ({ map, feature }: MarkerProps) => {
+const Marker = ({ map, feature, selectedStore, setSelectedStore }: MarkerProps) => {
     const { geometry } = feature
 
     const contentRef = useRef(document.createElement("div"));
     const markerRef = useRef<mapboxgl.Marker | null>(null)
+    const isSelected = feature.properties.name === selectedStore?.properties.name;
     
     useEffect(() => {
 
@@ -29,9 +32,13 @@ const Marker = ({ map, feature }: MarkerProps) => {
          <>
             {createPortal(
                 <div 
+                onClick={() => setSelectedStore(feature)}
                     className={'bg-contain bg-no-repeat cursor-pointer transition w-[37px] h-[40px]'}
                     style={{
-                        backgroundImage: 'url("/markers/sg-marker.svg")',
+                        backgroundImage: (
+                            isSelected
+                            ? 'url("/markers/sg-marker-selected.svg")' 
+                            : 'url("/markers/sg-marker.svg")'),
                     }}>
                 </div>,
                 contentRef.current

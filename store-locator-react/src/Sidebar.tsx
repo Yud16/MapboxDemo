@@ -1,10 +1,30 @@
 import type { StoreFeature } from './assets/locations'
+import { useEffect, useRef } from 'react'
 
 interface SidebarProps {
   stores: StoreFeature[]
+  selectedStore: StoreFeature | null
+  setSelectedStore: Function
 }
 
-const Sidebar = ({ stores  }: SidebarProps) => {
+const Sidebar = ({ stores, selectedStore, setSelectedStore  }: SidebarProps) => {
+    const storeRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
+
+    useEffect(() => {
+        if (
+        selectedStore &&
+        storeRefs.current &&
+        storeRefs.current[selectedStore.properties.name]
+        ) {
+        const element = storeRefs.current[selectedStore.properties.name];
+        if (element) {
+            element.scrollIntoView({
+            behavior: 'smooth', // Optionally smooth scrolling
+            block: 'start' // Align the element to the top of the container
+            });
+        }
+        }
+    }, [selectedStore])
 
   return (
     <div className="w-1/4 p-4 overflow-y-auto bg-sg-light-green shadow-xl z-10">
@@ -13,10 +33,13 @@ const Sidebar = ({ stores  }: SidebarProps) => {
       </h2>
       
       {stores.map((store) => {
+        const isSelected = store.properties.name === selectedStore?.properties.name;
         return (
           <div 
             key={store.properties.name} 
-            className={'bg-transparent hover:bg-white/50 relative flex flex-col my-4 border border-sg-green rounded-lg transition-all duration-200 cursor-pointer p-4'}>
+            ref={(el) => {storeRefs.current[store.properties.name] = el}}
+            onClick={()=> setSelectedStore(store)}
+            className={`${isSelected ? 'bg-white' : 'bg-transparent'} hover:bg-white/50 relative flex flex-col my-4 border border-sg-green rounded-lg transition-all duration-200 cursor-pointer p-4`}>
                
             <h4 className="mb-2 text-sg-green text-xl font-semibold">{store.properties.name}</h4>
             <div className="text-sg-green leading-normal font-light">
